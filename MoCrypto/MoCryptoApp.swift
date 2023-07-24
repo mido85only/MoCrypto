@@ -9,9 +9,16 @@ import SwiftUI
 
 @main
 struct MoCryptoApp: App {
+    
+    @StateObject private var vm = HomeViewModel()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationStack{
+                HomeView()
+                    .navigationBarHidden(true)
+            }
+            .environmentObject(vm)
         }
     }
 }
