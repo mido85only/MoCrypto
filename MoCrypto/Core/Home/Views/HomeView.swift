@@ -8,19 +8,24 @@
 import SwiftUI
 
 struct HomeView: View {
-    
-    @State private var showPortfolio = false
     @EnvironmentObject private var vm: HomeViewModel
-    
+
+    @State private var showPortfolio = false  //animate right
+    @State private var shorPortfolioView = false //new sheet
+   
     var body: some View {
         ZStack{
             //back ground layer
             Color.theme.background.ignoresSafeArea()
-            
+                .sheet(isPresented: $shorPortfolioView) {
+                    PortfolioView()
+                        .environmentObject(vm)
+                }
             // content layer
             VStack{
                 homeHeader
-                
+                HomeStatsView(showPortfolio: $showPortfolio)
+                SearchBarView(searchText: $vm.searchText)
                 colomnTitles
                 if !showPortfolio{
                     allCoinsList
@@ -51,6 +56,11 @@ extension HomeView {
         HStack{
             CircleButtonView(iconName: showPortfolio ? "plus" : "info")
                 .animation(.none, value: showPortfolio)
+                .onTapGesture {
+                    if showPortfolio {
+                        shorPortfolioView.toggle()
+                    }
+                }
                 .background(CircleButtonAnimationView(animate: $showPortfolio))
             Spacer()
             Text(showPortfolio ? "Portfolio" : "Live prices")
