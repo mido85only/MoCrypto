@@ -87,6 +87,9 @@ extension HomeView {
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
             }
         }
+        .refreshable {
+            vm.reloadData()
+        }
         .listStyle(PlainListStyle())
     }
     
@@ -102,13 +105,45 @@ extension HomeView {
     
     private var colomnTitles: some View{
         HStack{
-            Text("Coin")
+            HStack {
+                Text("Coin")
+                Image(systemName: "chevron.down")
+                    .opacity((vm.sortOption == .rank || vm.sortOption == .rankReversed) ? 1 : 0)
+                    .rotationEffect(Angle(degrees: vm.sortOption == .rank ? 0 : 180))
+            }
+            .onTapGesture {
+                withAnimation(.default){
+                    vm.sortOption = vm.sortOption == .rank ? .rankReversed : .rank
+                }
+            }
             Spacer()
             if showPortfolio{
-                Text("Holdings")
+                HStack {
+                    Text("Holdings")
+                    Image(systemName: "chevron.down")
+                        .opacity((vm.sortOption == .holdings || vm.sortOption == .holdingsREversed) ? 1 : 0)
+                        .rotationEffect(Angle(degrees: vm.sortOption == .holdings ? 0 : 180))
+
+                }
+                .onTapGesture {
+                    withAnimation(.default){
+                        vm.sortOption = vm.sortOption == .holdings ? .holdingsREversed : .holdings
+                    }
+                }
             }
-            Text("Prices")
-                .frame(width: UIScreen.main.bounds.width / 3 , alignment: .trailing)
+            HStack {
+                Text("Prices")
+                Image(systemName: "chevron.down")
+                    .opacity((vm.sortOption == .price || vm.sortOption == .priceReverced) ? 1 : 0)
+                    .rotationEffect(Angle(degrees: vm.sortOption == .price ? 0 : 180))
+
+            }
+            .frame(width: UIScreen.main.bounds.width / 3.5 , alignment: .trailing)
+            .onTapGesture {
+                withAnimation(.default){
+                    vm.sortOption = vm.sortOption == .price ? .priceReverced : .price
+                }
+            }
         }
         .font(.caption)
         .foregroundColor(Color.theme.secondaryText)
