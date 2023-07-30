@@ -12,6 +12,9 @@ struct HomeView: View {
 
     @State private var showPortfolio = false  //animate right
     @State private var shorPortfolioView = false //new sheet
+    
+    @State private var selectedCoin : CoinModel? = nil
+    @State private var showDetailView = false
    
     var body: some View {
         ZStack{
@@ -39,6 +42,13 @@ struct HomeView: View {
                 Spacer(minLength: 0)
             }
         }
+        .background(
+            NavigationLink(
+                destination: DetailLoadingView(coin: $selectedCoin),
+                isActive: $showDetailView,
+                label: {EmptyView()})
+        
+        )
     }
 }
 
@@ -85,6 +95,9 @@ extension HomeView {
             ForEach(vm.allCoins) { coin in
                 CoinRowView(coin: coin, showHoldingColumn: false)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
+                    .onTapGesture {
+                        segue(coin: coin)
+                    }
             }
         }
         .refreshable {
@@ -98,9 +111,17 @@ extension HomeView {
             ForEach(vm.portfolioCoins) { coin in
                 CoinRowView(coin: coin, showHoldingColumn: true)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
+                    .onTapGesture {
+                        segue(coin: coin)
+                    }
             }
         }
         .listStyle(PlainListStyle())
+    }
+    
+    private func segue(coin: CoinModel){
+        selectedCoin = coin
+        showDetailView.toggle()
     }
     
     private var colomnTitles: some View{
@@ -134,14 +155,14 @@ extension HomeView {
             HStack {
                 Text("Prices")
                 Image(systemName: "chevron.down")
-                    .opacity((vm.sortOption == .price || vm.sortOption == .priceReverced) ? 1 : 0)
+                    .opacity((vm.sortOption == .price || vm.sortOption == .priceReversed) ? 1 : 0)
                     .rotationEffect(Angle(degrees: vm.sortOption == .price ? 0 : 180))
 
             }
             .frame(width: UIScreen.main.bounds.width / 3.5 , alignment: .trailing)
             .onTapGesture {
                 withAnimation(.default){
-                    vm.sortOption = vm.sortOption == .price ? .priceReverced : .price
+                    vm.sortOption = vm.sortOption == .price ? .priceReversed : .price
                 }
             }
         }
