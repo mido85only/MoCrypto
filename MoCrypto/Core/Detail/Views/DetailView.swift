@@ -22,6 +22,7 @@ struct DetailLoadingView: View{
 struct DetailView: View {
     
     @StateObject var vm : DetailViewModel
+    @State private var showFullDescription = false
     private let columns: [GridItem] = [GridItem(.flexible()),
                                        GridItem(.flexible()),
     ]
@@ -41,30 +42,19 @@ struct DetailView: View {
                 VStack(spacing: 20) {
                     overviewTitle
                     Divider()
-                    
-                    if let coinDescription = vm.coinDescrption , !coinDescription.isEmpty{
-                        VStack {
-                            Text(coinDescription)
-                                .lineLimit(3)
-                            Button {
-                                
-                            } label: {
-                                
-                            }
-
-                        }
-                        
-                    }
-                    
+                    descriptionSection
                     overviewGrid
-                    
                     additionalTitle
                     Divider()
                     additionalGrid
+                    websiteSection
+                    
+                    
                 }
                 .padding()
             }
         }
+        .background(Color.theme.background.ignoresSafeArea())
         .navigationTitle(vm.coin.name)
         .toolbar(content:{
             ToolbarItem(placement: .navigationBarTrailing){
@@ -111,6 +101,32 @@ extension DetailView{
             .frame(maxWidth: .infinity , alignment: .leading)
     }
     
+    private var descriptionSection : some View{
+        ZStack{
+            if let coinDescription = vm.coinDescrption , !coinDescription.isEmpty{
+                VStack(alignment: .leading) {
+                    Text(coinDescription)
+                        .lineLimit(showFullDescription ? nil : 3)
+                        .font(.callout)
+                        .foregroundColor(Color.theme.secondaryText)
+                    Button {
+                        withAnimation(.easeInOut){
+                            showFullDescription.toggle()
+                        }
+                    } label: {
+                        Text(showFullDescription ? "Less" : "Read more..")
+                            .font(.caption)
+                            .bold()
+                            .padding(.vertical,4)
+                    }
+                    .foregroundColor(.blue)
+                }
+                .frame( maxWidth: .infinity, alignment: .leading)
+                
+            }
+        }
+    }
+    
     private var overviewGrid :some View{
         LazyVGrid(
             columns: columns,
@@ -133,5 +149,22 @@ extension DetailView{
                     StatisticView(stat: stat)
                 }
             }
+    }
+    
+    private var websiteSection : some View{
+        VStack(alignment: .leading, spacing: 20.0){
+            if let website = vm.websiteURL,
+               let url = URL(string: website){
+                Link("website", destination: url)
+            }
+            
+            if let reddit = vm.redditURL ,
+               let url = URL(string: reddit){
+                Link("Reddit", destination: url)
+            }
+        }
+        .foregroundColor(.blue)
+        .frame(maxWidth: .infinity , alignment:.leading)
+        .font(.headline)
     }
 }
